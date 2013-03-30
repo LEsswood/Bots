@@ -9,9 +9,31 @@ public class WorldView
 	private List<String> shouts;
 	private List<Double> terrain;
 	private List<WorldObject> objectsInView;
-
 	private int gameTime;
 	private GameType gameType;
+	
+	public WorldView(List<IBot> botsInView, List<String> shouts,
+			List<Double> terrain, List<WorldObject> objectsInView,
+			int gameTime, GameType gameType)
+	{
+		super();
+		this.botsInView = botsInView;
+		this.shouts = shouts;
+		this.terrain = terrain;
+		this.objectsInView = objectsInView;
+		this.gameTime = gameTime;
+		this.gameType = gameType;
+	}
+
+	public int getGameTime()
+	{
+		return gameTime;
+	}
+
+	public GameType getGameType()
+	{
+		return gameType;
+	}
 
 	// covers everything now apart from terrain . Even bots. (because I felt
 	// giving all the terrain info because you can see a little
@@ -43,15 +65,5 @@ public class WorldView
 	public List<Double> getTerrain()
 	{
 		return terrain;
-	}
-
-	public WorldView(List<IBot> botsInView, List<String> shouts,
-			List<Double> terrain, List<WorldObject> objectsInView)
-	{
-		super();
-		this.botsInView = botsInView;
-		this.shouts = shouts;
-		this.terrain = terrain;
-		this.objectsInView = objectsInView;
 	}
 }

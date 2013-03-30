@@ -4,8 +4,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D.Double;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,6 +22,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
+
 import Lucas.*;
 import Tests.*;
 import Lawrence.*;
@@ -25,7 +34,8 @@ public class Game extends JFrame
 	public List<String> s;
 	public List<Bullet> bullets;
 	public List<MsgBox> boxes;
-
+	public Double terrain;
+	
 	private GameWindow gw;
 	private ShoutListener sl;
 
@@ -37,6 +47,7 @@ public class Game extends JFrame
 		s = new LinkedList<String>();
 		bullets = new LinkedList<Bullet>();
 		boxes = new LinkedList<MsgBox>();
+		terrain = new Double();
 		setSize(1000, 1000);
 		setVisible(true);
 		gw = new GameWindow();
@@ -64,6 +75,7 @@ public class Game extends JFrame
 	protected BasicBot buildBot(BotFactory fac, double x, double y)
 	{
 		BasicBot b = fac.build(countID, gameTime);
+		b.gt = fac.getGameType();
 		b.x = x;
 		b.y = y;
 		b.teamid = fac.getTeamId();
@@ -96,8 +108,7 @@ public class Game extends JFrame
 		s = new LinkedList<String>();
 		for (BasicBot b : bots)
 		{
-			WorldView wv = new WorldView(calcLOS(b), shoutsThisRound, null,
-					null);
+			WorldView wv = new WorldView(calcLOS(b), shoutsThisRound,null,null,gameTime,b.gt);
 			b.update(wv);
 			b.hit = false;
 			// calculate where you want to walk
@@ -171,7 +182,7 @@ public class Game extends JFrame
 					b2.hit = true;
 				}
 			}
-			if (!b1.hit && b1.walking)
+			if (!b1.hit && b1.walking && !inTerrain(b1.getNextBoundingShape()))
 			{
 				b1.x += b1.vx;
 				b1.y += b1.vy;
@@ -204,7 +215,7 @@ public class Game extends JFrame
 						}
 					}
 					if (b.x < 0 || b.x > Globals.GAME_SIZE || b.y < 0
-							|| b.y > Globals.GAME_SIZE || hit)
+							|| b.y > Globals.GAME_SIZE || hit || inTerrain(b.getBoundingShape()))
 					{
 						iter.remove();
 						break;
@@ -214,7 +225,16 @@ public class Game extends JFrame
 		}
 		gameTime++;
 	}
-
+	public Boolean inTerrain(Shape bound)
+	{
+		if(terrain.intersects(bound.getBounds2D()))
+		{
+			Area clip = new Area(bound);
+			clip.intersect(new Area(terrain));
+			return !clip.isEmpty();
+		}
+		return false;
+	}
 	public List<IBot> calcLOS(BasicBot from)
 	{
 		List<IBot> ret = new LinkedList<IBot>();
@@ -232,7 +252,23 @@ public class Game extends JFrame
 						&& radialHit(dx, dy, Globals.VIEWCONE_R
 								+ Globals.PLAYER_SIZE))
 				{
-					ret.add(new ShellBot(b, from.x, from.y));
+					Line2D l2d = new Line2D.Double(from.x, from.y, b.x, b.y);
+					
+					boolean blockedView = false;
+					
+					for(Line2D l:new TerrainIterator(terrain))
+					{
+						if(l2d.intersectsLine(l))
+						{
+							blockedView = true;
+							break;
+						}
+					}
+					
+					if(!blockedView)
+					{
+						ret.add(new ShellBot(b, from.x, from.y));
+					}
 				}
 			}
 		}
@@ -285,6 +321,7 @@ public class Game extends JFrame
 			g.fillRect(0, 0, dim.width, dim.height);
 			g.setColor(Color.RED);
 			g.drawRect(0, 0, Globals.GAME_SIZE, Globals.GAME_SIZE);
+			Graphics2D g2d = (Graphics2D)g;
 			for (BasicBot b : bots)
 			{
 				g.setColor(teams[b.teamid]);
@@ -294,13 +331,16 @@ public class Game extends JFrame
 						(int) (Globals.PLAYER_SIZE * 2));
 				g.setColor(new Color(teams[b.teamid].getRed(), teams[b.teamid]
 						.getBlue(), teams[b.teamid].getBlue(), 50));
-				g.fillArc(
-						(int) (b.x - Globals.VIEWCONE_R),
-						(int) (b.y - Globals.VIEWCONE_R),
-						(int) (Globals.VIEWCONE_R * 2),
-						(int) (Globals.VIEWCONE_R * 2),
-						(int) Math.toDegrees(-b.angle - Globals.VIEWCONE_THETA),
-						(int) Math.toDegrees(Globals.VIEWCONE_THETA * 2));
+				Shape ar = new Arc2D.Double(
+						new Rectangle2D.Double(
+								(b.x - Globals.VIEWCONE_R),
+								(b.y - Globals.VIEWCONE_R),
+								(Globals.VIEWCONE_R * 2),
+								(Globals.VIEWCONE_R * 2)),
+						Math.toDegrees(-b.angle - Globals.VIEWCONE_THETA),
+						Math.toDegrees(Globals.VIEWCONE_THETA * 2),
+						2);
+				g2d.fill(ar);
 				g.setColor(Color.BLACK);
 				g.drawLine(
 						(int) b.x,
@@ -312,6 +352,10 @@ public class Game extends JFrame
 								+ (int) (Globals.PLAYER_SIZE * Math
 										.sin(b.angle)));
 			}
+			g.setColor(Color.WHITE);
+			g2d.fill(terrain);
+			g.setColor(Color.BLACK);
+			g2d.draw(terrain);
 			g.setColor(Color.YELLOW);
 			for (Bullet b : bullets)
 			{

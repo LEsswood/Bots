@@ -1,4 +1,9 @@
 package Root;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,8 +34,27 @@ public abstract class BasicBot implements IBot
 	
 	double walkAngle = 0;
 	
+	GameType gt = null;
+	
 	public abstract void update(WorldView view);
-
+	
+	
+	Rectangle2D getRectBounds()
+	{
+		return new Rectangle2D.Double(x-Globals.PLAYER_SIZE,y-Globals.PLAYER_SIZE,Globals.PLAYER_SIZE*2,Globals.PLAYER_SIZE*2);
+	}
+	Rectangle2D getNextRectBounds()
+	{
+		return new Rectangle2D.Double(x-Globals.PLAYER_SIZE+vx,y-Globals.PLAYER_SIZE+vy,Globals.PLAYER_SIZE*2,Globals.PLAYER_SIZE*2);
+	}
+	Shape getBoundingShape()
+	{
+		return (new Ellipse2D.Double(x-Globals.PLAYER_SIZE,y-Globals.PLAYER_SIZE,Globals.PLAYER_SIZE*2,Globals.PLAYER_SIZE*2));
+	}
+	Shape getNextBoundingShape()
+	{
+		return (new Ellipse2D.Double(x-Globals.PLAYER_SIZE+vx,y-Globals.PLAYER_SIZE+vy,Globals.PLAYER_SIZE*2,Globals.PLAYER_SIZE*2));
+	}
 	public int getHealth() {return health;}
 
 	public int getAmmo() {

@@ -1,15 +1,33 @@
 package Root;
 
+import java.awt.geom.Path2D.Double;
+
 import Lawrence.*;
+import Tests.*;
 
 public class TestGame extends Game
 {
 	public TestGame(BotFactory a, BotFactory b)
 	{
 		super();
-		//create 8 a side.
+		//add some terrain
+		
+		terrain.moveTo(200, 200);
+		terrain.lineTo(400, 200);
+		terrain.lineTo(300, 310);
+		terrain.lineTo(220, 300);
+		terrain.lineTo(200, 200);
+		
+		terrain.moveTo(400, 400);
+		terrain.lineTo(600, 400);
+		terrain.lineTo(500, 510);
+		terrain.lineTo(520, 600);
+		terrain.quadTo(500, 500, 400, 400);
+		
+		
+		//create 5 a side.
 		BasicBot bot;
-		for(int i = 0;i < 9;i++)
+		for(int i = 0;i < 5;i++)
 		{
 			bot = this.buildBot(a, 100, 100 + 100*i);
 			bot.angle = 0;
@@ -20,6 +38,6 @@ public class TestGame extends Game
 	
 	public static void main(String[] args) throws Exception
 	{
-		final Game g = new TestGame(new LawrenceFactory(0,GameType.Deathmatch),new LawrenceFactory(1,GameType.Deathmatch));
+		final Game g = new TestGame(new TestFactory(0,GameType.Deathmatch),new LawrenceFactory(1,GameType.Deathmatch));
 	}
 }

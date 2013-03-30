@@ -9,7 +9,8 @@ public class TestBot extends UserBot {
 	@Override
 	public void update(WorldView view) 
 	{
-		
+		this.startWalking(0);
+		this.startShooting();
 	}
 
 }

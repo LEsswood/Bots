@@ -77,6 +77,10 @@ public class Game extends JFrame
 	protected BasicBot buildBot(BotFactory fac, double x, double y)
 	{
 		BasicBot b = fac.build(countID, gameTime);
+		if(b instanceof IOBot)
+		{
+			this.addKeyListener((IOBot)b);
+		}
 		b.gt = fac.getGameType();
 		b.x = x;
 		b.y = y;
@@ -125,30 +129,31 @@ public class Game extends JFrame
 				double sa = Math.toDegrees(Math.atan2(-l2d.getY1()+b.y, l2d.getX1()-b.x));
 				
 				double fa = Math.toDegrees(Math.atan2(-l2d.getY2()+b.y, l2d.getX2()-b.x));
-				
-				
-				Arc2D arc = new Arc2D.Double(
-						new Rectangle2D.Double(
-								(b.x - Globals.VIEWCONE_R),
-								(b.y - Globals.VIEWCONE_R),
-								(Globals.VIEWCONE_R * 2),
-								(Globals.VIEWCONE_R * 2)),
-						sa,
-						fa-sa,
-						2);
-				
-				Area subArc = new Area(arc);
-				//remove portion in front
-				Path2D tri = new Path2D.Double();
-				tri.moveTo(b.x, b.y);
-				tri.lineTo(l2d.getX2(), l2d.getY2());
-				tri.lineTo(l2d.getX1(), l2d.getY1());
-				tri.lineTo(b.x, b.y);
-				
-				subArc.subtract(new Area(tri));
-				
-				//remove from LOS
-				area.subtract(subArc);
+				if(true)
+				{
+					Arc2D arc = new Arc2D.Double(
+							new Rectangle2D.Double(
+									(b.x - Globals.VIEWCONE_R),
+									(b.y - Globals.VIEWCONE_R),
+									(Globals.VIEWCONE_R * 2),
+									(Globals.VIEWCONE_R * 2)),
+							sa,
+							fa-sa,
+							2);
+					
+					Area subArc = new Area(arc);
+					//remove portion in front
+					Path2D tri = new Path2D.Double();
+					tri.moveTo(b.x, b.y);
+					tri.lineTo(l2d.getX2(), l2d.getY2());
+					tri.lineTo(l2d.getX1(), l2d.getY1());
+					tri.lineTo(b.x, b.y);
+					
+					subArc.subtract(new Area(tri));
+					
+					//remove from LOS
+					area.subtract(subArc);
+				}
 			}
 			b.viewCone = area;
 			

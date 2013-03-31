@@ -1,5 +1,6 @@
 package Tests;
 
+import Root.BasicBot;
 import Root.BotFactory;
 import Root.GameType;
 import Root.UserBot;
@@ -14,6 +15,8 @@ public class TestFactory extends BotFactory
 	@Override
 	public UserBot build(int id, int gameTimePassed)
 	{
-		return new TestBot();
+		UserBot bb = new IOBot();
+		return bb;
+		
 	}
 }

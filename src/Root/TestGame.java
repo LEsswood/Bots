@@ -34,6 +34,7 @@ public class TestGame extends Game
 			bot = this.buildBot(b, 800, 100 + 100*i);
 			bot.angle = Math.PI;
 		}
+		
 	}
 	
 	public static void main(String[] args) throws Exception

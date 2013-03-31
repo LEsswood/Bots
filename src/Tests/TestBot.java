@@ -11,6 +11,7 @@ public class TestBot extends UserBot {
 	{
 		this.startWalking(0);
 		this.startShooting();
+		this.turnTo(this.getDirection() +0.01);
 	}
 
 }

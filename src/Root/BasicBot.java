@@ -35,7 +35,7 @@ public abstract class BasicBot implements IBot
 	double walkAngle = 0;
 	
 	GameType gt = null;
-	
+	Area viewCone;
 	public abstract void update(WorldView view);
 	
 	

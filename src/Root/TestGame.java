@@ -27,9 +27,9 @@ public class TestGame extends Game
 		
 		//create 5 a side.
 		BasicBot bot;
-		for(int i = 0;i < 5;i++)
+		for(int i = 0;i < 1;i++)
 		{
-			bot = this.buildBot(a, 100, 100 + 100*i);
+			bot = this.buildBot(a, 100, 400 + 100*i);
 			bot.angle = 0;
 			bot = this.buildBot(b, 800, 100 + 100*i);
 			bot.angle = Math.PI;
